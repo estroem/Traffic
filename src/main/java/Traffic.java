@@ -12,19 +12,19 @@ public class Traffic {
         Stop stop3 = new Stop("stop3", new Coords(1, 0));
         Stop stop4 = new Stop("stop4", new Coords(1, 1));
 
-        List<RouteStop> routeStops1 = new ArrayList<RouteStop>();
-        routeStops1.add(new RouteStop(stop1, 0));
-        routeStops1.add(new RouteStop(stop2, 1));
-        routeStops1.add(new RouteStop(stop4, 2));
+        Route route1 = new Route();
+        Leg leg1 = route1.newLeg("leg1, via stop2");
 
-        Route route1 = new Route(Collections.singletonList(new Leg(routeStops1, null, "dest: stop4 via stop2")));
+        leg1.addStop(stop1, 0);
+        leg1.addStop(stop2, 1);
+        leg1.addStop(stop4, 2);
 
-        List<RouteStop> routeStops2 = new ArrayList<RouteStop>();
-        routeStops2.add(new RouteStop(stop1, 0));
-        routeStops2.add(new RouteStop(stop3, 1));
-        routeStops2.add(new RouteStop(stop4, 2));
+        Route route2 = new Route();
+        Leg leg2 = route2.newLeg("leg2, via stop3");
 
-        Route route2 = new Route(Collections.singletonList(new Leg(routeStops2, null, "dest: stop4 via stop3")));
+        leg2.addStop(stop1, 0);
+        leg2.addStop(stop3, 1);
+        leg2.addStop(stop4, 2);
 
         routes.add(route1);
         routes.add(route2);

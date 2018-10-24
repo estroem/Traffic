@@ -5,11 +5,28 @@ public class Leg {
     private List<RouteStop> routeStops = new ArrayList<RouteStop>();
     private Leg next;
     private String destination;
+    private Route route;
 
     public Leg(List<RouteStop> routeStops, Leg next, String destination) {
         this.routeStops = routeStops;
         this.next = next;
         this.destination = destination;
+    }
+
+    public Leg(Route route, String destination) {
+        this.route = route;
+        this.destination = destination;
+    }
+
+    public RouteStop addStop(Stop stop, int time) {
+        RouteStop routeStop = new RouteStop(stop, time);
+        routeStops.add(routeStop);
+        stop.addRoute(route);
+        return routeStop;
+    }
+
+    public void setNext(Leg next) {
+        this.next = next;
     }
 
     public List<RouteStop> getRouteStops() {
@@ -22,5 +39,9 @@ public class Leg {
 
     public String getDestination() {
         return destination;
+    }
+
+    public Route getRoute() {
+        return route;
     }
 }
