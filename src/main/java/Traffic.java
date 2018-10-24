@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class Traffic {
-    public static List<Route> routes = new ArrayList<Route>();
-
     public static void main(String args[]) {
         Stop stop1 = new Stop("stop1", new Coords(0, 0));
         Stop stop2 = new Stop("stop2", new Coords(0, 1));
@@ -26,11 +24,17 @@ public class Traffic {
         leg2.addStop(stop3, 1);
         leg2.addStop(stop4, 2);
 
+        List<Route> routes = new ArrayList<Route>();
+
         routes.add(route1);
         routes.add(route2);
+
+        routes.stream();
+
+        calculate(routes, stop1, stop4, 0);
     }
 
-    public static void calculate() {
+    public static void calculate(List<Route> routes, Stop from, Stop to, int startTime) {
 
     }
 }
