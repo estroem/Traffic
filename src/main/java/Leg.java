@@ -20,6 +20,9 @@ public class Leg {
 
     public RouteStop addStop(Stop stop, int time) {
         RouteStop routeStop = new RouteStop(stop, time);
+        if(routeStops.size() > 0) {
+            routeStops.get(routeStops.size()-1).setNext(routeStop);
+        }
         routeStops.add(routeStop);
         stop.addRoute(route);
         return routeStop;

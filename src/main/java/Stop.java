@@ -21,6 +21,10 @@ public class Stop {
         routes.add(route);
     }
 
+    public Set<Route> getRoutes() {
+        return routes;
+    }
+
     public int getId() {
         return id;
     }

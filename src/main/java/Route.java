@@ -1,9 +1,10 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 public class Route {
-    private List<Leg> legs;
+    private List<Leg> legs = new ArrayList<>();
 
     public Route() {}
 
@@ -28,5 +29,14 @@ public class Route {
             }
         }
         return null;
+    }
+
+    public RouteStop findRouteStop(Stop stop, int time) {
+        return legs.stream()
+                .map(Leg::getRouteStops)
+                .flatMap(Collection::stream)
+                .filter(rs -> rs.getStop().equals(stop) && rs.getTime() >= time)
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -1,11 +1,26 @@
-public class StopNode {
-    private Stop stop;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-    public StopNode(Stop stop) {
+public class StopNode implements Node {
+    private Stop stop;
+    private int time;
+
+    public StopNode(Stop stop, int time) {
         this.stop = stop;
+        this.time = time;
     }
 
     public Stop getStop() {
         return stop;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public Set<Node> getNextNodes() {
+        return stop.getRoutes().stream()
+                .map(r -> r.findRouteStop(stop, time))
+                .collect(Collectors.toSet());
     }
 }
