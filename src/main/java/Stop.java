@@ -39,6 +39,11 @@ public class Stop {
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj || obj instanceof Stop && ((Stop)obj).id == id;
+        return this == obj || obj instanceof Stop && ((Stop)obj).name.equals(name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }

@@ -16,7 +16,7 @@ class Surface extends JPanel implements ActionListener {
     private Timer timer;
     private List<Stop> stops;
     private List<Route> routes;
-    private List<Node> path;
+    private List<Node> path = new ArrayList<>();
 
     public Surface() {
         initTimer();
@@ -39,11 +39,12 @@ class Surface extends JPanel implements ActionListener {
             g2d.setPaint(Color.LIGHT_GRAY);
             g2d.setStroke(new BasicStroke(15));
             for(Route route : routes) {
-                for(Leg leg : route.getLegs())
-                for(int i = 0; i < leg.getRouteStops().size()-1; i++) {
-                    Coords from = leg.getRouteStops().get(i).getStop().getCoords();
-                    Coords to = leg.getRouteStops().get(i+1).getStop().getCoords();
-                    g2d.drawLine((int)from.getX()*100+20, (int)from.getY()*100+20, (int)to.getX()*100+20, (int)to.getY()*100+20);
+                for(Leg leg : route.getLegs()) {
+                    for (int i = 0; i < leg.getRouteStops().size() - 1; i++) {
+                        Coords from = leg.getRouteStops().get(i).getStop().getCoords();
+                        Coords to = leg.getRouteStops().get(i + 1).getStop().getCoords();
+                        g2d.drawLine((int) from.getX() * 100 + 20, (int) from.getY() * 100 + 20, (int) to.getX() * 100 + 20, (int) to.getY() * 100 + 20);
+                    }
                 }
             }
             g2d.setPaint(Color.PINK);
@@ -68,14 +69,20 @@ class Surface extends JPanel implements ActionListener {
         }
     }
 
-    public void drawMap(List<Route> routes, List<Stop> stops) {
-        this.routes = routes;
+    public void drawMap(List<Stop> stops, List<Route> routes) {
         this.stops = stops;
+        this.routes = routes;
         repaint();
     }
 
     public void drawPath(List<Node> path) {
         this.path = path;
+        repaint();
+    }
+
+    public void addNode(Node node) {
+        path.add(node);
+        repaint();
     }
 
     @Override
@@ -99,7 +106,7 @@ public class MainWindow extends JFrame {
             public void run() {
                 MainWindow tr = new MainWindow();
                 tr.setVisible(true);
-                tr.setup();
+                tr.runSimulation();
             }
         });
     }
@@ -125,7 +132,7 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    public void setup() {
+    public void runSimulation() {
         Stop stop1 = new Stop("stop1", new Coords(0, 0));
         Stop stop2 = new Stop("stop2", new Coords(0, 1));
         Stop stop3 = new Stop("stop3", new Coords(1, 0));
@@ -136,7 +143,7 @@ public class MainWindow extends JFrame {
 
         leg1.addStop(stop1, 0);
         leg1.addStop(stop2, 1);
-        leg1.addStop(stop4, 2);
+        leg1.addStop(stop4, 3);
 
         Route route2 = new Route();
         Leg leg2 = route2.newLeg("leg2, via stop3");
@@ -156,11 +163,11 @@ public class MainWindow extends JFrame {
         stops.add(stop3);
         stops.add(stop4);
 
-        surface.drawMap(routes, stops);
+        surface.drawMap(stops, routes);
 
-        Traffic traffic = new Traffic(routes);
-        List<Node> nodes = traffic.calculate(stop1, stop4, 0);
+        Traffic traffic = new Traffic(stops, routes, surface);
+        traffic.setParams(stop1, stop4, 0);
 
-        surface.drawPath(nodes);
+        new Thread(traffic).start();
     }
 }

@@ -1,7 +1,7 @@
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class StopNode implements Node {
+public class StopNode extends Node {
     private Stop stop;
     private int time;
 
@@ -22,5 +22,15 @@ public class StopNode implements Node {
         return stop.getRoutes().stream()
                 .map(r -> r.findRouteStop(stop, time))
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj || obj instanceof StopNode && ((StopNode)obj).getStop().equals(stop);
+    }
+
+    @Override
+    public int hashCode() {
+        return stop.hashCode();
     }
 }

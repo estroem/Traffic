@@ -1,7 +1,7 @@
 import java.util.HashSet;
 import java.util.Set;
 
-public class RouteStop implements Node {
+public class RouteStop extends Node {
     private Stop stop;
     private int time;
     private RouteStop next;
