@@ -1,0 +1,50 @@
+[
+    {
+        "id": 0,
+        "legs": [
+            {
+                "id": 0,
+                "destination": "stop4 - route0",
+                "nextLeg": 0,
+                "stops": [
+                    {
+                        "id": 0,
+                        "time": 0
+                    },
+                    {
+                        "id": 1,
+                        "time": 2
+                    },
+                    {
+                        "id": 3,
+                        "time": 3
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": 1,
+        "legs": [
+            {
+                "id": 0,
+                "destination": "stop4 - route1",
+                "nextLeg": 0,
+                "stops": [
+                    {
+                        "id": 0,
+                        "time": 0
+                    },
+                    {
+                        "id": 2,
+                        "time": 1
+                    },
+                    {
+                        "id": 3,
+                        "time": 3
+                    }
+                ]
+            }
+        ]
+    }
+]

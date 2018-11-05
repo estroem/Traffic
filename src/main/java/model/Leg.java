@@ -1,8 +1,12 @@
+package model;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Leg {
     private List<RouteStop> routeStops = new ArrayList<RouteStop>();
+    private int id;
+    private int nextLeg;
     private Leg next;
     private String destination;
     private Route route;

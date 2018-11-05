@@ -1,3 +1,7 @@
+package main;
+
+import model.*;
+
 import java.util.*;
 
 public class Traffic implements Runnable {

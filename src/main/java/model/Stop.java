@@ -1,20 +1,21 @@
-import java.util.ArrayList;
+package model;
+
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Stop {
-    private static int nextId = 0;
-
     private int id;
     private String name;
     private Coords coords;
     private Set<Route> routes = new HashSet<Route>();
 
-    public Stop(String name, Coords coords) {
+    public Stop() {}
+
+    public Stop(int id, String name, Coords coords) {
+        this.id = id;
         this.name = name;
         this.coords = coords;
-        this.id = nextId++;
     }
 
     public void addRoute(Route route) {

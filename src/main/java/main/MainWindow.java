@@ -1,12 +1,17 @@
+package main;
+
+import builders.RoutesJSONBuilder;
+import builders.StopsJSONBuilder;
+import model.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.io.File;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -98,7 +103,7 @@ class Surface extends JPanel implements ActionListener {
 }
 
 public class MainWindow extends JFrame {
-    final Surface surface = new Surface();
+    private final Surface surface = new Surface();
 
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
@@ -106,12 +111,18 @@ public class MainWindow extends JFrame {
             public void run() {
                 MainWindow tr = new MainWindow();
                 tr.setVisible(true);
-                tr.runSimulation();
+                tr.start();
             }
         });
     }
 
-    public MainWindow() {
+    private void start() {
+        Demo demo = new Demo(surface);
+        demo.loadData();
+        demo.runSimulation();
+    }
+
+    private MainWindow() {
         initUI();
     }
 
@@ -131,6 +142,21 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+}
+
+class Demo {
+    private final Surface surface;
+    private List<Stop> stops = null;
+    private List<Route> routes = null;
+
+    public Demo(Surface surface) {
+        this.surface = surface;
+    }
+
+    public void loadData() {
+        stops = StopsJSONBuilder.fromJson(readFile("stops.json"));
+        routes = RoutesJSONBuilder.fromJson(readFile("routes.json"));
+    }
 
     public void runSimulation() {
         Stop stop1 = new Stop("stop1", new Coords(0, 0));
@@ -143,14 +169,14 @@ public class MainWindow extends JFrame {
 
         leg1.addStop(stop1, 0);
         leg1.addStop(stop2, 1);
-        leg1.addStop(stop4, 3);
+        leg1.addStop(stop4, 4);
 
         Route route2 = new Route();
         Leg leg2 = route2.newLeg("leg2, via stop3");
 
         leg2.addStop(stop1, 0);
-        leg2.addStop(stop3, 1);
-        leg2.addStop(stop4, 2);
+        leg2.addStop(stop3, 2);
+        leg2.addStop(stop4, 3);
 
         List<Route> routes = new ArrayList<Route>();
 
@@ -169,5 +195,23 @@ public class MainWindow extends JFrame {
         traffic.setParams(stop1, stop4, 0);
 
         new Thread(traffic).start();
+    }
+
+    private String readFile(String filename) {
+        StringBuilder result = new StringBuilder("");
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource(filename).getFile());
+
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                result.append(line).append("\n");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result.toString();
     }
 }

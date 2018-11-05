@@ -1,16 +1,21 @@
+package model;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 public class Route {
+    private int id;
     private List<Leg> legs = new ArrayList<>();
 
     public Route() {}
 
-    public Route(List<Leg> legs) {
+    public Route(int id, List<Leg> legs) {
+        this.id = id;
         this.legs = legs;
     }
+
     public List<Leg> getLegs() {
         return legs;
     }
