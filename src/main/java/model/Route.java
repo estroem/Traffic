@@ -20,6 +20,10 @@ public class Route {
         return legs;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public Leg newLeg(String destination) {
         Leg leg = new Leg(this, destination);
         legs.add(leg);
@@ -27,7 +31,7 @@ public class Route {
     }
 
     public Iterator<RouteStop> iterator(Stop stop, int time) {
-        List<RouteStop> routeStops = legs.get(0).getRouteStops();
+        List<RouteStop> routeStops = legs.get(0).getStops();
         for(int i = 0; i < routeStops.size(); i++) {
             if(routeStops.get(i).getStop().equals(stop)) {
                 return routeStops.listIterator();
@@ -38,7 +42,7 @@ public class Route {
 
     public RouteStop findRouteStop(Stop stop, int time) {
         return legs.stream()
-                .map(Leg::getRouteStops)
+                .map(Leg::getStops)
                 .flatMap(Collection::stream)
                 .filter(rs -> rs.getStop().equals(stop) && rs.getTime() >= time)
                 .findFirst()

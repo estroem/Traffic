@@ -4,15 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Leg {
-    private List<RouteStop> routeStops = new ArrayList<RouteStop>();
+    private List<RouteStop> stops = new ArrayList<RouteStop>();
     private int id;
     private int nextLeg;
     private Leg next;
     private String destination;
     private Route route;
 
-    public Leg(List<RouteStop> routeStops, Leg next, String destination) {
-        this.routeStops = routeStops;
+    public Leg() {}
+
+    public Leg(int id, String destination, int nextLeg, List<RouteStop> stops) {
+        this.id = id;
+        this.destination = destination;
+        this.nextLeg = nextLeg;
+        this.stops = stops;
+    }
+
+    public Leg(List<RouteStop> stops, Leg next, String destination) {
+        this.stops = stops;
         this.next = next;
         this.destination = destination;
     }
@@ -24,20 +33,28 @@ public class Leg {
 
     public RouteStop addStop(Stop stop, int time) {
         RouteStop routeStop = new RouteStop(stop, time);
-        if(routeStops.size() > 0) {
-            routeStops.get(routeStops.size()-1).setNext(routeStop);
+        if(stops.size() > 0) {
+            stops.get(stops.size()-1).setNext(routeStop);
         }
-        routeStops.add(routeStop);
+        stops.add(routeStop);
         stop.addRoute(route);
         return routeStop;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getNextLeg() {
+        return nextLeg;
     }
 
     public void setNext(Leg next) {
         this.next = next;
     }
 
-    public List<RouteStop> getRouteStops() {
-        return routeStops;
+    public List<RouteStop> getStops() {
+        return stops;
     }
 
     public Leg getNext() {

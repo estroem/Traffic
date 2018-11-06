@@ -25,14 +25,4 @@ public class StopNode extends Node {
                 .map(r -> r.findRouteStop(stop, time))
                 .collect(Collectors.toSet());
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        return this == obj || obj instanceof StopNode && ((StopNode)obj).getStop().equals(stop);
-    }
-
-    @Override
-    public int hashCode() {
-        return stop.hashCode();
-    }
 }

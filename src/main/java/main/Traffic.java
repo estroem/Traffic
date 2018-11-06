@@ -29,7 +29,7 @@ public class Traffic implements Runnable {
     }
 
     public void run() {
-        calculate();
+        calculate2();
     }
 
     public List<Node> calculate() {
@@ -82,6 +82,51 @@ public class Traffic implements Runnable {
         return null;
     }
 
+    public List<Node> calculate2() {
+        Set<Node> potentialNodes = new HashSet<>();
+        Map<Stop, Double> visitedStops = new HashMap<>();
+        Set<Node> visitedNodes = new HashSet<>();
+        Map<Node, Node> prev = new HashMap<>();
+
+        StopNode startNode = new StopNode(from, time);
+        potentialNodes.add(startNode);
+
+        while(!potentialNodes.isEmpty()) {
+            Node currentNode = potentialNodes.stream().min(Comparator.comparing(this::getScore)).orElse(null);
+
+            if(currentNode == null) {
+                return null;
+            }
+
+            surface.drawPath(buildPath(prev, currentNode));
+
+            System.out.println(currentNode.getStop().getName());
+
+            try{
+                Thread.sleep(300);
+            } catch (Exception e) {
+                System.out.println("some error");
+            }
+
+            potentialNodes.remove(currentNode);
+            visitedStops.put(currentNode.getStop(), getScore(currentNode));
+            visitedNodes.add(currentNode);
+
+            if(currentNode.getStop().equals(to)) {
+                return buildPath(prev, currentNode);
+            }
+
+            for(Node neighbor : currentNode.getNextNodes()) {
+                if(!visitedNodes.contains(neighbor) && !potentialNodes.contains(neighbor) && (!visitedStops.containsKey(neighbor.getStop()) || neighbor.getTime() < visitedStops.get(neighbor.getStop()))) {
+                    prev.put(neighbor, currentNode);
+                    potentialNodes.add(neighbor);
+                    visitedStops.remove(neighbor.getStop());
+                }
+            }
+        }
+        return null;
+    }
+
     private List<Node> buildPath(Map<Node, Node> prev, Node end) {
         List<Node> path = new ArrayList<>();
         do {
@@ -91,7 +136,7 @@ public class Traffic implements Runnable {
         return path;
     }
 
-    private double getScore(Node node, Stop to) {
+    private double getScore(Node node) {
         return node.getTime() + getDist(node.getStop(), to);
     }
 
