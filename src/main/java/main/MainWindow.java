@@ -60,8 +60,9 @@ public class MainWindow extends JFrame {
 
 class Demo {
     private Surface surface;
-    private List<Stop> stops = null;
-    private List<Route> routes = null;
+    private List<Stop> stops = new ArrayList<>();
+    private List<Route> routes = new ArrayList<>();
+    private List<Thread> threads = new ArrayList<>();
 
     public Demo(Surface surface) {
         this.surface = surface;
@@ -99,13 +100,10 @@ class Demo {
         leg3.addStop(stop1, 0);
         leg3.addStop(stop5, 1);
 
-        List<Route> routes = new ArrayList<Route>();
-
         routes.add(route1);
         routes.add(route2);
         routes.add(route3);
 
-        List<Stop> stops = new ArrayList<>();
         stops.add(stop1);
         stops.add(stop2);
         stops.add(stop3);
@@ -117,7 +115,20 @@ class Demo {
         Traffic traffic = new Traffic(stops, routes, surface);
         traffic.setParams(stop1, stop4, 0);
 
-        new Thread(traffic).start();
+        threads.add(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                traffic.calculate2(1);
+            }
+        }));
+        threads.add(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                traffic.calculate2(2);
+            }
+        }));
+
+        threads.forEach(Thread::start);
     }
 
     private String readFile(String filename) {

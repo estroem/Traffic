@@ -3,20 +3,21 @@ package main;
 import model.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 class Surface extends JPanel implements ActionListener {
     private final int DELAY = 150;
     private Timer timer;
     private List<Stop> stops;
     private List<Route> routes;
-    private List<Node> path = new ArrayList<>();
+    private HashMap<Integer, List<Node>> paths = new HashMap<>();
+    private Color pathColor;
+    private Color pathColorLighter;
 
     public Surface() {
         initTimer();
@@ -47,17 +48,20 @@ class Surface extends JPanel implements ActionListener {
                     }
                 }
             }
-            g2d.setPaint(Color.PINK);
-            if(path != null) {
-                for(int i = 0; i < path.size()-1; i++) {
-                    Coords from = path.get(i).getStop().getCoords();
-                    Coords to = path.get(i+1).getStop().getCoords();
-                    g2d.drawLine((int)from.getX()*100+100, (int)from.getY()*100+100, (int)to.getX()*100+100, (int)to.getY()*100+100);
-                }
-                g2d.setPaint(Color.RED);
-                for(Node node : path) {
-                    g2d.fillOval((int) node.getStop().getCoords().getX() * 100 + 85, (int) node.getStop().getCoords().getY() * 100 + 85, 30, 30);
-                    dontDraw.add(node.getStop());
+            for(int pathId : paths.keySet()) {
+                List<Node> path = paths.get(pathId);
+                g2d.setPaint(getLighterColor(pathId));
+                if (path != null) {
+                    for (int i = 0; i < path.size() - 1; i++) {
+                        Coords from = path.get(i).getStop().getCoords();
+                        Coords to = path.get(i + 1).getStop().getCoords();
+                        g2d.drawLine((int) from.getX() * 100 + 100, (int) from.getY() * 100 + 100, (int) to.getX() * 100 + 100, (int) to.getY() * 100 + 100);
+                    }
+                    g2d.setPaint(getColor(pathId));
+                    for (Node node : path) {
+                        g2d.fillOval((int) node.getStop().getCoords().getX() * 100 + 85, (int) node.getStop().getCoords().getY() * 100 + 85, 30, 30);
+                        dontDraw.add(node.getStop());
+                    }
                 }
             }
             g2d.setPaint(Color.BLACK);
@@ -75,14 +79,25 @@ class Surface extends JPanel implements ActionListener {
         repaint();
     }
 
-    public void drawPath(List<Node> path) {
-        this.path = path;
+    public void drawPath(List<Node> path, int threadId) {
+        this.paths.put(threadId, path);
         repaint();
     }
 
-    public void addNode(Node node) {
-        path.add(node);
-        repaint();
+    private Color getColor(int threadId) {
+        switch (threadId) {
+            case 1: return Color.RED;
+            case 2: return Color.BLUE;
+            default: return Color.MAGENTA;
+        }
+    }
+
+    private Color getLighterColor(int threadId) {
+        switch (threadId) {
+            case 1: return Color.PINK;
+            case 2: return Color.CYAN;
+            default: return Color.MAGENTA;
+        }
     }
 
     @Override

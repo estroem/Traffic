@@ -4,13 +4,20 @@ import model.*;
 
 import java.util.*;
 
-public class Traffic implements Runnable {
+public class Traffic {
     private List<Stop> stops = new ArrayList<>();
     private List<Route> routes = new ArrayList<>();
     private Surface surface;
     private Stop from;
     private Stop to;
     private int time;
+
+    private Set<Node> potentialNodes = new HashSet<>();
+    private Map<Stop, Double> visitedStops = new HashMap<>();
+    private Set<Node> visitedNodes = new HashSet<>();
+    private Map<Node, Node> prev = new HashMap<>();
+
+    private boolean stop = false;
 
     public Traffic(List<Stop> stops, List<Route> routes, Surface surface) {
         this.stops = stops;
@@ -26,10 +33,6 @@ public class Traffic implements Runnable {
         this.from = from;
         this.to = to;
         this.time = time;
-    }
-
-    public void run() {
-        calculate2();
     }
 
     public List<Node> calculate() {
@@ -50,7 +53,7 @@ public class Traffic implements Runnable {
             Node currentNode = potentialNodes.stream()
                     .min(Comparator.comparing(Node::getTime)).orElse(null);
 
-            surface.drawPath(buildPath(prev, currentNode));
+            surface.drawPath(buildPath(prev, currentNode), 0);
 
             System.out.println(currentNode.getStop().getName());
 
@@ -82,45 +85,51 @@ public class Traffic implements Runnable {
         return null;
     }
 
-    public List<Node> calculate2() {
-        Set<Node> potentialNodes = new HashSet<>();
-        Map<Stop, Double> visitedStops = new HashMap<>();
-        Set<Node> visitedNodes = new HashSet<>();
-        Map<Node, Node> prev = new HashMap<>();
-
+    public List<Node> calculate2(int threadId) {
+        try {
+            if(threadId == 1) Thread.sleep(500);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         StopNode startNode = new StopNode(from, time);
         potentialNodes.add(startNode);
 
-        while(!potentialNodes.isEmpty()) {
-            Node currentNode = potentialNodes.stream().min(Comparator.comparing(this::getScore)).orElse(null);
+        while(!potentialNodes.isEmpty() && !stop) {
+            Node currentNode;
+            synchronized (this) {
+                currentNode = potentialNodes.stream().min(Comparator.comparing(this::getScore)).orElse(null);
 
-            if(currentNode == null) {
-                return null;
+                if (currentNode == null) {
+                    return null;
+                }
+
+                potentialNodes.remove(currentNode);
+                visitedStops.put(currentNode.getStop(), getScore(currentNode));
+                visitedNodes.add(currentNode);
             }
 
-            surface.drawPath(buildPath(prev, currentNode));
+            surface.drawPath(buildPath(prev, currentNode), threadId);
 
-            System.out.println(currentNode.getStop().getName());
+            System.out.println("Thread " + threadId + ": " + currentNode.getStop().getName());
 
             try{
-                Thread.sleep(300);
+                Thread.sleep(1000);
             } catch (Exception e) {
                 System.out.println("some error");
             }
 
-            potentialNodes.remove(currentNode);
-            visitedStops.put(currentNode.getStop(), getScore(currentNode));
-            visitedNodes.add(currentNode);
-
             if(currentNode.getStop().equals(to)) {
+                stop = true;
                 return buildPath(prev, currentNode);
             }
 
             for(Node neighbor : currentNode.getNextNodes()) {
-                if(!visitedNodes.contains(neighbor) && !potentialNodes.contains(neighbor) && (!visitedStops.containsKey(neighbor.getStop()) || neighbor.getTime() < visitedStops.get(neighbor.getStop()))) {
-                    prev.put(neighbor, currentNode);
-                    potentialNodes.add(neighbor);
-                    visitedStops.remove(neighbor.getStop());
+                synchronized (this) {
+                    if (!visitedNodes.contains(neighbor) && !potentialNodes.contains(neighbor) && (!visitedStops.containsKey(neighbor.getStop()) || neighbor.getTime() < visitedStops.get(neighbor.getStop()))) {
+                        prev.put(neighbor, currentNode);
+                        potentialNodes.add(neighbor);
+                        visitedStops.remove(neighbor.getStop());
+                    }
                 }
             }
         }
