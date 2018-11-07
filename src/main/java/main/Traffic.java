@@ -3,6 +3,7 @@ package main;
 import model.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Traffic {
     private List<Stop> stops = new ArrayList<>();
@@ -12,10 +13,10 @@ public class Traffic {
     private Stop to;
     private int time;
 
-    private Set<Node> potentialNodes = new HashSet<>();
-    private Map<Stop, Double> visitedStops = new HashMap<>();
-    private Set<Node> visitedNodes = new HashSet<>();
-    private Map<Node, Node> prev = new HashMap<>();
+    private final Set<Node> potentialNodes = ConcurrentHashMap.newKeySet();
+    private final Map<Stop, Double> visitedStops = new ConcurrentHashMap<>();
+    private final Set<Node> visitedNodes = ConcurrentHashMap.newKeySet();
+    private final Map<Node, Node> prev = new ConcurrentHashMap<>();
 
     private boolean stop = false;
 
@@ -86,11 +87,6 @@ public class Traffic {
     }
 
     public List<Node> calculate2(int threadId) {
-        try {
-            if(threadId == 1) Thread.sleep(500);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         StopNode startNode = new StopNode(from, time);
         potentialNodes.add(startNode);
 
@@ -104,19 +100,12 @@ public class Traffic {
                 }
 
                 potentialNodes.remove(currentNode);
-                visitedStops.put(currentNode.getStop(), getScore(currentNode));
-                visitedNodes.add(currentNode);
             }
+
+            visitedStops.put(currentNode.getStop(), getScore(currentNode));
+            visitedNodes.add(currentNode);
 
             surface.drawPath(buildPath(prev, currentNode), threadId);
-
-            System.out.println("Thread " + threadId + ": " + currentNode.getStop().getName());
-
-            try{
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                System.out.println("some error");
-            }
 
             if(currentNode.getStop().equals(to)) {
                 stop = true;

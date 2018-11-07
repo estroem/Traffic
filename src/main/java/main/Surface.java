@@ -11,7 +11,13 @@ import java.util.*;
 import java.util.List;
 
 class Surface extends JPanel implements ActionListener {
-    private final int DELAY = 150;
+    private static final int DELAY = 150;
+    private static final int OFFSET_X = 80;
+    private static final int OFFSET_Y = 40;
+    private static final double SCALE = 40;
+    private static final int DIAMETER = (int) (30 * SCALE/100);
+    private static final int LINE_WIDTH = (int) (15 * SCALE/100);
+
     private Timer timer;
     private List<Stop> stops;
     private List<Route> routes;
@@ -38,13 +44,13 @@ class Surface extends JPanel implements ActionListener {
 
         if(routes != null && stops != null) {
             g2d.setPaint(Color.LIGHT_GRAY);
-            g2d.setStroke(new BasicStroke(15));
+            g2d.setStroke(new BasicStroke(LINE_WIDTH));
             for(Route route : routes) {
                 for(Leg leg : route.getLegs()) {
                     for (int i = 0; i < leg.getStops().size() - 1; i++) {
                         Coords from = leg.getStops().get(i).getStop().getCoords();
                         Coords to = leg.getStops().get(i + 1).getStop().getCoords();
-                        g2d.drawLine((int) from.getX() * 100 + 100, (int) from.getY() * 100 + 100, (int) to.getX() * 100 + 100, (int) to.getY() * 100 + 100);
+                        g2d.drawLine((int) (from.getX() * SCALE) + OFFSET_X, (int) (from.getY() * SCALE) + OFFSET_Y, (int) (to.getX() * SCALE) + OFFSET_X, (int) (to.getY() * SCALE) + OFFSET_Y);
                     }
                 }
             }
@@ -55,11 +61,11 @@ class Surface extends JPanel implements ActionListener {
                     for (int i = 0; i < path.size() - 1; i++) {
                         Coords from = path.get(i).getStop().getCoords();
                         Coords to = path.get(i + 1).getStop().getCoords();
-                        g2d.drawLine((int) from.getX() * 100 + 100, (int) from.getY() * 100 + 100, (int) to.getX() * 100 + 100, (int) to.getY() * 100 + 100);
+                        g2d.drawLine((int) (from.getX() * SCALE) + OFFSET_X, (int) (from.getY() * SCALE) + OFFSET_Y, (int) (to.getX() * SCALE) + OFFSET_X, (int) (to.getY() * SCALE) + OFFSET_Y);
                     }
                     g2d.setPaint(getColor(pathId));
                     for (Node node : path) {
-                        g2d.fillOval((int) node.getStop().getCoords().getX() * 100 + 85, (int) node.getStop().getCoords().getY() * 100 + 85, 30, 30);
+                        g2d.fillOval((int) (node.getStop().getCoords().getX() * SCALE) + OFFSET_X - DIAMETER/2, (int) (node.getStop().getCoords().getY() * SCALE) + OFFSET_Y - DIAMETER/2, DIAMETER, DIAMETER);
                         dontDraw.add(node.getStop());
                     }
                 }
@@ -67,7 +73,7 @@ class Surface extends JPanel implements ActionListener {
             g2d.setPaint(Color.BLACK);
             for(Stop stop : stops) {
                 if(!dontDraw.contains(stop)) {
-                    g2d.fillOval((int) stop.getCoords().getX() * 100 + 85, (int) stop.getCoords().getY() * 100 + 85, 30, 30);
+                    g2d.fillOval((int) (stop.getCoords().getX() * SCALE) + OFFSET_X - DIAMETER/2, (int) (stop.getCoords().getY()* SCALE) + OFFSET_Y - DIAMETER/2, DIAMETER, DIAMETER);
                 }
             }
         }
@@ -88,6 +94,7 @@ class Surface extends JPanel implements ActionListener {
         switch (threadId) {
             case 1: return Color.RED;
             case 2: return Color.BLUE;
+            case 3: return Color.ORANGE;
             default: return Color.MAGENTA;
         }
     }
@@ -96,6 +103,7 @@ class Surface extends JPanel implements ActionListener {
         switch (threadId) {
             case 1: return Color.PINK;
             case 2: return Color.CYAN;
+            case 3: return Color.YELLOW;
             default: return Color.MAGENTA;
         }
     }

@@ -1,19 +1,14 @@
 package main;
 
-import builders.RoutesJSONBuilder;
-import builders.StopsJSONBuilder;
 import model.*;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.*;
 import java.util.List;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class MainWindow extends JFrame {
@@ -59,6 +54,8 @@ public class MainWindow extends JFrame {
 }
 
 class Demo {
+    private static final int NUM_THREADS = 3;
+
     private Surface surface;
     private List<Stop> stops = new ArrayList<>();
     private List<Route> routes = new ArrayList<>();
@@ -112,23 +109,36 @@ class Demo {
 
         surface.drawMap(stops, routes);
 
+        long startTime = System.nanoTime();
+
         Traffic traffic = new Traffic(stops, routes, surface);
         traffic.setParams(stop1, stop4, 0);
 
-        threads.add(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                traffic.calculate2(1);
-            }
-        }));
-        threads.add(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                traffic.calculate2(2);
-            }
-        }));
+        List<Thread> threads = new ArrayList<>();
+
+        for(int i = 1; i <= NUM_THREADS; i++) {
+            final int id = i;
+            threads.add(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    traffic.calculate2(id);
+                }
+            }));
+        }
 
         threads.forEach(Thread::start);
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        long endTime = System.nanoTime();
+
+        System.out.println("Time taken: " + (endTime - startTime) / 1000000);
     }
 
     private String readFile(String filename) {
