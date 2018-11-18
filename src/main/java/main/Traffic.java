@@ -17,6 +17,7 @@ public class Traffic {
     private final Map<Stop, Double> visitedStops = new ConcurrentHashMap<>();
     private final Set<Node> visitedNodes = ConcurrentHashMap.newKeySet();
     private final Map<Node, Node> prev = new ConcurrentHashMap<>();
+    private Node bestNode;
 
     private boolean stop = false;
 
@@ -86,19 +87,21 @@ public class Traffic {
         return null;
     }
 
-    public List<Node> calculate2(int threadId) {
+    public List<Node> calculate2(int threadId, int wait) {
         StopNode startNode = new StopNode(from, time);
         potentialNodes.add(startNode);
 
         while(!potentialNodes.isEmpty() && !stop) {
+            try {
+                Thread.sleep(wait);
+            } catch (Exception e) {}
+
             Node currentNode;
             synchronized (this) {
                 currentNode = potentialNodes.stream().min(Comparator.comparing(this::getScore)).orElse(null);
-
-                if (currentNode == null) {
+                if (currentNode == null || bestNode != null && getScore(currentNode) > getScore(bestNode)) {
                     return null;
                 }
-
                 potentialNodes.remove(currentNode);
             }
 
@@ -108,8 +111,9 @@ public class Traffic {
             surface.drawPath(buildPath(prev, currentNode), threadId);
 
             if(currentNode.getStop().equals(to)) {
-                stop = true;
-                return buildPath(prev, currentNode);
+                if(bestNode == null || currentNode.getTime() < bestNode.getTime()) {
+                    bestNode = currentNode;
+                }
             }
 
             for(Node neighbor : currentNode.getNextNodes()) {
@@ -123,6 +127,10 @@ public class Traffic {
             }
         }
         return null;
+    }
+
+    public List<Node> getBestPath() {
+        return buildPath(prev, bestNode);
     }
 
     private List<Node> buildPath(Map<Node, Node> prev, Node end) {

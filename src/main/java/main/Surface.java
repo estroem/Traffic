@@ -13,8 +13,8 @@ import java.util.List;
 class Surface extends JPanel implements ActionListener {
     private static final int DELAY = 150;
     private static final int OFFSET_X = 80;
-    private static final int OFFSET_Y = 40;
-    private static final double SCALE = 40;
+    private static final int OFFSET_Y = 80;
+    private static final double SCALE = 100;
     private static final int DIAMETER = (int) (30 * SCALE/100);
     private static final int LINE_WIDTH = (int) (15 * SCALE/100);
 
